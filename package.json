@@ -1,0 +1,28 @@
+{
+  "name": "risksense",
+  "version": "1.0.0",
+  "description": "Risk Sense Test",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prad1386/risksense.git"
+  },
+  "author": "Pradeep Kumar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prad1386/risksense/issues"
+  },
+  "homepage": "https://github.com/prad1386/risksense#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.3.13"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.6"
+  }
+}
