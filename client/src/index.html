@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <style type="text/css">
+    @import url("//fonts.googleapis.com/css?family=Lato:400,400italic,700,700italic");
+
+    body {
+      font-family: "Lato", Arial, Helvetica, sans-serif;
+      font-size: 16px;
+    }
+
+    .node {
+      border: solid 1px white;
+      font: 0.625em sans-serif;
+      line-height: 12px;
+      overflow: hidden;
+      position: absolute;
+      text-indent: 2px;
+      cursor: default;
+      color: #fff;
+      text-align: center;
+    }
+
+    .ledg {
+      font: 0.8em sans-serif;
+      position: absolute;
+      text-indent: 5px;
+    }
+
+    a {
+      color: dimgray;
+    }
+
+    .toolTip {
+      position: absolute;
+      display: none;
+      width: auto;
+      height: auto;
+      background: none repeat scroll 0 0 white;
+      border: 0 none;
+      border-radius: 8px 8px 8px 8px;
+      box-shadow: -3px 3px 15px #888888;
+      color: black;
+      font: 12px sans-serif;
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript">
+    var width = 1040,
+      height = 600;
+
+    function shadeColor(color, percent) {
+      var num = parseInt(color.slice(1), 16),
+        amt = Math.round(2.55 * percent),
+        R = (num >> 16) + amt,
+        G = ((num >> 8) & 0x00ff) + amt,
+        B = (num & 0x0000ff) + amt;
+      return (
+        "#" +
+        (
+          0x1000000 +
+          (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+          (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+          (B < 255 ? (B < 1 ? 0 : B) : 255)
+        )
+          .toString(16)
+          .slice(1)
+      );
+    }
+
+    var treemap = d3.layout
+      .treemap()
+      .size([width, height])
+      .padding(0.25)
+      .value(function(d) {
+        return d.targets;
+      });
+
+    var div = d3
+      .select("body")
+      .append("div")
+      .attr("class", "treemap")
+      .style("position", "relative")
+      .style("width", width + "px")
+      .style("height", height + "px");
+
+    var tool = d3
+      .select("body")
+      .append("div")
+      .attr("class", "toolTip");
+
+    d3.select(self.frameElement).style("height", height + 300 + "px");
+    d3.select(self.frameElement).style("width", width + 20 + "px");
+
+    d3.json("http://localhost:5000/api/data/ports/all", function(error, root) {
+      if (error) throw error;
+
+      div
+        .selectAll(".node")
+        .data(treemap.nodes(root))
+        .enter()
+        .append("div")
+        .attr("class", "node")
+        .style("left", function(d) {
+          return d.x + "px";
+        })
+        .style("top", function(d) {
+          return d.y + "px";
+        })
+        .style("width", function(d) {
+          return Math.max(0, d.dx - 1) + "px";
+        })
+        .style("height", function(d) {
+          return Math.max(0, d.dy - 1) + "px";
+        })
+        .style("background", function(d) {
+          return d ? shadeColor("#ff0000", d.rank + 20) : null;
+        })
+        .style("background", function(d) {
+          return d ? shadeColor("#ff0000", d.rank + 20) : null;
+        })
+        .text(function(d) {
+          return d.children ? null : d.targetport;
+        })
+        .on("mousemove", function(d) {
+          tool.style("left", d3.event.pageX + 10 + "px");
+          tool.style("top", d3.event.pageY - 20 + "px");
+          tool.style("display", "inline-block");
+          tool.html(
+            d.children
+              ? null
+              : "<strong> Port Number : " +
+                  d.targetport +
+                  "</strong><br> <br> <strong>DShield Rank : </strong>" +
+                  d.rank +
+                  " <br> <br><strong>Vulnerability Count : </strong>" +
+                  d.targets +
+                  " <br> <br><strong>Number of Sources : </strong>" +
+                  d.sources
+          );
+        })
+        .on("mouseout", function(d) {
+          tool.style("display", "none");
+        });
+    });
+  </script>
+</body>

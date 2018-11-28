@@ -12,7 +12,7 @@ router.get("/ports/all", (req, res) => {
       if (!ports) {
         return res.status(404).json({ ports: "There are no ports" });
       }
-      res.json(ports);
+      res.json({ children: ports });
     })
     .catch(err => res.status(404).json({ ports: "There are no ports" }));
 });
